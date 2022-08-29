@@ -18,17 +18,13 @@ options.add_argument('window-size=1300,800')
 browser= webdriver.Chrome(options=options)
 browser_action=ActionChains(browser)
 browser.get('https://www.maze.com.br/')
-nike_airforce_list=[]
-nike_airmax90_list=[]
-nike_airmax97_list=[]
 
 
 # fazer um pausa de 2 segundos para depois pegar o conteudo da pagina
 sleep(1.5)
-nike_selector=browser.find_element(By.XPATH,'/html/body/div[2]/div[3]/div[2]/div/nav/ul/li[4]/a')
+
 def hover_category(selector_name):
   browser_action.move_to_element(selector_name).perform()
-hover_category(nike_selector)
 # rolar até o final da page
 
 def handle_scroll_page():
@@ -44,6 +40,7 @@ def handle_scroll_page():
         positions.append(current_scroll_height)
         if (repeat_positions[current_scroll_height] >= 10):
          break
+    return 'finished'
 def Select_cards():
     send_to_top=browser.find_element(By.CSS_SELECTOR,'#goToTop')
     send_to_top.click()
@@ -70,40 +67,23 @@ def create_product_dict(list):
     tenis['title'] = tenis_title.text
     tenis['price'] = tenis_price['content']
     list.append(tenis)
-count=1
+
 list=[]
 nike_lists=[list for i in range(13)]
-while count <= 12:
-    if count !=1:
-      nike_selector=browser.find_element(By.XPATH,'/html/body/div[2]/div[3]/div[2]/div/nav/ul/li[4]/a')
-      hover_category(nike_selector)
-    selector=browser.find_element(By.XPATH,f'/html/body/div[2]/div[3]/div[2]/div/nav/ul/li[4]/div/div/div/div/div/div[{count}]/div/a')
-    selector.click()
-    handle_scroll_page()
-    create_product_dict(nike_lists[count])
-    count +=1
-    sleep(1)
+sneakers_list=[]
 
+def set_lists(category_list,category_order):
+    count = 0
+    while True:
+        category_selector=browser.find_element(By.XPATH,f'/html/body/div[2]/div[3]/div[2]/div/nav/ul/li[{category_order}]/a')
+        hover_category(category_selector)
+        category_selector.click()
+        check_looping=handle_scroll_page()
+        create_product_dict(category_list)
+        sleep(0.5)
+        if(check_looping == 'finished'):
+          break
+        count += 1
+set_lists(sneakers_list,8)
+print(len(sneakers_list))
 
-""" airmax90_selector=browser.find_element(By.XPATH,'/html/body/div[2]/div[3]/div[2]/div/nav/ul/li[4]/div/div/div/div/div/div[5]/div/a')
-airmax90_selector.click()
-handle_scroll_page()
-create_product_dict(nike_airmax90_list)
-
-sleep(1)
-nike_selector=browser.find_element(By.XPATH,'/html/body/div[2]/div[3]/div[2]/div/nav/ul/li[4]/a')
-browser_action.move_to_element(nike_selector).perform()
-airmax97_selector=browser.find_element(By.XPATH,'/html/body/div[2]/div[3]/div[2]/div/nav/ul/li[4]/div/div/div/div/div/div[7]/div/a')
-airmax97_selector.click()
-handle_scroll_page()
-create_product_dict(nike_airmax97_list) """
-print(nike_lists)
-
-""" search_input= brower.find_element(By.CSS_SELECTOR, 'body > div.pusher > div.ui.container.fluid.maze_header > div > div > div > div.ui.mobile.hide.eight.wide.tablet.ten.wide.computer.column.searchBar > div > div.ui.input.fluid.blocoBuscaContainer > input')
-search_input.send_keys('puma')
-sleep(0.4)
-
-first_option= brower.find_element(By.CSS_SELECTOR,'body > div.pusher > div.ui.container.fluid.maze_header > div > div > div > div.ui.mobile.hide.eight.wide.tablet.ten.wide.computer.column.searchBar > div > div.results.hidden.results-clone > a:nth-child(1) > div')
-first_option.click()
-
-sleep(3) """
