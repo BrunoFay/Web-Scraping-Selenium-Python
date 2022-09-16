@@ -46,10 +46,13 @@ def Select_cards():
     send_to_top.click()
     page_content=browser.page_source
     site = BeautifulSoup(page_content,'html.parser')
-    return site.find_all('div',attrs={
+    in_stock = site.find_all('div',attrs={
         'class':'ui card produto product-in-card in-stock',
-        'class':'ui card produto product-in-card out-of-stock'
       })
+    out_of_stock = site.find_all('div',attrs={
+        'class':'ui card produto product-in-card out-of-stock',
+      })
+    return in_stock + out_of_stock
 
 def create_product_dict(list):
   tenis_cards=Select_cards()
@@ -60,16 +63,21 @@ def create_product_dict(list):
     tenis_secundary_img= tenis_card.find('img', attrs={'class':'hidden content'})
     tenis_title= tenis_card.find('span', attrs={'itemprop':'name'})
     tenis_price= tenis_card.find('meta', attrs={'itemprop':'price'})
-
+    tenis_id= tenis_card.find('meta', attrs={'itemprop':'productID'})['content']
     if(tenis_secundary_img):
       tenis['secondary_card_image'] = tenis_secundary_img['src']
     tenis['primary_card_image'] = tenis_primary_img['data-src']
     tenis['title'] = tenis_title.text
     tenis['price'] = tenis_price['content']
-    list.append(tenis)
+    print(tenis_card)
+    element_link_xpath = f'//*[@id="Product_{tenis_id}"]/div/a'
+    browser.find_element(By.XPATH,element_link_xpath).click()
+    break
+    """ list.append(tenis) """
 
-list=[]
-nike_lists=[list for i in range(13)]
+
+""" list=[]
+nike_lists=[list for i in range(13)] """
 sneakers_list=[]
 
 def set_lists(category_list,category_order):
@@ -84,6 +92,6 @@ def set_lists(category_list,category_order):
         if(check_looping == 'finished'):
           break
         count += 1
-set_lists(sneakers_list,8)
+set_lists(sneakers_list,7)
 print(len(sneakers_list))
 
