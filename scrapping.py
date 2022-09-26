@@ -9,15 +9,17 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from time import sleep
 from collections import Counter
+from mongoConnection import sneakers_collection, nike_collection,clothes_collection,adidas_collection,vans_collection,puma_collection,skate_collection,accessories_collection
 
 #setar um tamanho de tela
 options= Options()
 options.add_argument('window-size=1300,800')
 #roda o script sem o navegador
 """ options.headless= True """
+main_url = 'https://www.maze.com.br/'
 browser= webdriver.Chrome(options=options)
 browser_action=ActionChains(browser)
-browser.get('https://www.maze.com.br/')
+browser.get(main_url)
 
 
 # fazer um pausa de 2 segundos para depois pegar o conteudo da pagina
@@ -41,6 +43,7 @@ def handle_scroll_page():
         if (repeat_positions[current_scroll_height] >= 10):
          break
     return 'finished'
+
 def Select_cards():
     send_to_top=browser.find_element(By.CSS_SELECTOR,'#goToTop')
     send_to_top.click()
@@ -55,30 +58,48 @@ def Select_cards():
     return in_stock + out_of_stock
 
 def create_product_dict(list):
-  tenis_cards=Select_cards()
-  for tenis_card in tenis_cards:
-    tenis={}
+    product_cards=Select_cards()
+    for product_card in product_cards:
+        product_dict={}
 
-    tenis_primary_img= tenis_card.find('img', attrs={'class':'visible content'})
-    tenis_secundary_img= tenis_card.find('img', attrs={'class':'hidden content'})
-    tenis_title= tenis_card.find('span', attrs={'itemprop':'name'})
-    tenis_price= tenis_card.find('meta', attrs={'itemprop':'price'})
-    tenis_id= tenis_card.find('meta', attrs={'itemprop':'productID'})['content']
-    if(tenis_secundary_img):
-      tenis['secondary_card_image'] = tenis_secundary_img['src']
-    tenis['primary_card_image'] = tenis_primary_img['data-src']
-    tenis['title'] = tenis_title.text
-    tenis['price'] = tenis_price['content']
-    print(tenis_card)
-    element_link_xpath = f'//*[@id="Product_{tenis_id}"]/div/a'
-    browser.find_element(By.XPATH,element_link_xpath).click()
-    break
-    """ list.append(tenis) """
+        product_primary_card_img= product_card.find('img', attrs={'class':'visible content'})
+        product_secondary_card_img= product_card.find('img', attrs={'class':'hidden content'})
+        product_title= product_card.find('span', attrs={'itemprop':'name'})
+        product_price= product_card.find('meta', attrs={'itemprop':'price'})
+        if(product_secondary_card_img):
+          product_dict['secondary_card_image'] = product_secondary_card_img['src']
+        product_dict['primary_card_image'] = product_primary_card_img['data-src']
+        product_dict['title'] = product_title.text
+        product_dict['price'] = product_price['content']
+
+        main_product_link = product_card.find('a', attrs={'itemprop':'url'})['href']
+        browser.get(f'{main_url}{main_product_link}')
+        page_content=browser.page_source
+        site = BeautifulSoup(page_content,'html.parser')
+        main_product_image_src = site.find('img',attrs={
+            'id':'imagem-padrao',
+          })['src'].replace('//','')
+        secondary_images = site.find_all('img',attrs={
+            'class':'ui image small centered',
+          })
+        secondary_images_srcs= [img['src'].replace('//','') for img in secondary_images]
+        product_dict['main_image'] = main_product_image_src
+        product_dict['secondaries_images'] = main_product_image_src
+
+        browser.back()
+        list.append(product_dict)
 
 
 """ list=[]
 nike_lists=[list for i in range(13)] """
 sneakers_list=[]
+nike_list=[]
+clothes_list=[]
+accessories_list=[]
+adidas_list=[]
+vans_list=[]
+puma_list=[]
+skate_list=[]
 
 def set_lists(category_list,category_order):
     count = 0
@@ -92,6 +113,21 @@ def set_lists(category_list,category_order):
         if(check_looping == 'finished'):
           break
         count += 1
-set_lists(sneakers_list,7)
-print(len(sneakers_list))
+set_lists(sneakers_list,1)
+set_lists(clothes_list,2)
+set_lists(accessories_list,3)
+set_lists(nike_list,4)
+set_lists(adidas_list,5)
+set_lists(vans_list,6)
+set_lists(puma_list,7)
+set_lists(skate_list,8)
+browser.close()
 
+sneakers_collection.insert_many(sneakers_list)
+nike_collection.insert_many(nike_list)
+clothes_collection.insert_many(clothes_list)
+adidas_collection.insert_many(adidas_list)
+vans_collection.insert_many(vans_list)
+puma_collection.insert_many(puma_list)
+skate_collection.insert_many(skate_list)
+accessories_collection.insert_many(accessories_list)
