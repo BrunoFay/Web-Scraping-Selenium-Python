@@ -10,6 +10,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 from time import sleep
 from collections import Counter
 from mongoConnection import db
+import os
+
 
 #setar um tamanho de tela
 options= Options()
@@ -18,7 +20,7 @@ options.add_argument('window-size=1300,800')
 
 #roda o script sem o navegador
 """ options.headless= True """
-main_url = 'https://www.maze.com.br/'
+main_url = os.getenv('SCRAPPING_URL')
 browser= webdriver.Chrome(options=options)
 browser_action=ActionChains(browser)
 browser.get(main_url)
