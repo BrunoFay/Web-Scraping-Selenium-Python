@@ -132,16 +132,18 @@ set_lists(nike_list,4)
 set_lists(adidas_list,5)
 set_lists(vans_list,6)
 set_lists(puma_list,7)
+
 browser.close()
 
-sneakers_collection = db['Sneakers']
-nike_collection = db['Nike']
-adidas_collection = db['Adidas']
-vans_collection = db['Vans']
-puma_collection = db['Puma']
+def set_lists_on_db():
+    sneakers_collection = db['Sneakers']
+    nike_collection = db['Nike']
+    adidas_collection = db['Adidas']
+    vans_collection = db['Vans']
+    puma_collection = db['Puma']
 
-sneakers_collection.insert_many(sneakers_list)
-nike_collection.insert_many(nike_list)
-adidas_collection.insert_many(adidas_list)
-vans_collection.insert_many(vans_list)
-puma_collection.insert_many(puma_list)
+    sneakers_collection.insert_many(sneakers_list)
+    nike_collection.insert_many(nike_list)
+    adidas_collection.insert_many(adidas_list)
+    vans_collection.insert_many(vans_list)
+    puma_collection.insert_many(puma_list)
